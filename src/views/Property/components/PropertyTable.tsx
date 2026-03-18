@@ -30,12 +30,12 @@ const ActionColumn = ({ row }: { row: Property }) => {
     }
 
     const onView = useCallback(() => {
-        navigate(`/app/sales/order-details/${row.id}`)
+        navigate(`/app/properties/${row.id}/edit/summary`)
     }, [navigate, row])
 
     return (
         <div className="flex justify-end text-lg">
-            <Tooltip title="View">
+            <Tooltip title="View/Edit">
                 <span
                     className={`cursor-pointer p-2 hover:${textTheme}`}
                     onClick={onView}
@@ -65,7 +65,7 @@ const PropertyTable = () => {
         (state) => state.salesOrderList.data.tableData,
     ) */
 
-    const data = useAppSelector((state) => state.property)
+    const data = useAppSelector((state) => state.property.list)
 
     useEffect(() => {
        // dispatch(setSelectedRows([]))

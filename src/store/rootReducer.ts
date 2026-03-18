@@ -4,6 +4,7 @@ import base, { BaseState } from './slices/base'
 import locale, { LocaleState } from './slices/locale/localeSlice'
 import theme, { ThemeState } from './slices/theme/themeSlice'
 import property, { PropertyState } from './slices/property/propertySlice'
+import propertyType, { PropertyTypeState } from './slices/property/propertyTypeSlice'
 import RtkQueryService from '@/services/RtkQueryService'
 
 export type RootState = {
@@ -12,6 +13,7 @@ export type RootState = {
     locale: LocaleState
     theme: ThemeState
     property: PropertyState
+    propertyType: PropertyTypeState
     /* eslint-disable @typescript-eslint/no-explicit-any */
     [RtkQueryService.reducerPath]: any
 }
@@ -26,6 +28,7 @@ const staticReducers = {
     locale,
     theme,
     property,
+    propertyType,
     [RtkQueryService.reducerPath]: RtkQueryService.reducer,
 }
 

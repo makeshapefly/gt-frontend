@@ -27,7 +27,8 @@ const persistConfig = {
     key: PERSIST_STORE_NAME,
     keyPrefix: '',
     storage,
-    whitelist: ['auth', 'locale', 'property'],
+    whitelist: ['auth', 'locale', 'property', 'propertyType'],
+    version: 2,
 }
 
 interface CustomStore extends Store<RootState, AnyAction> {

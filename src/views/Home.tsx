@@ -16,7 +16,7 @@ import {
 
 const Home = () => {
     const dispatch = useAppDispatch()
-    const property = useAppSelector((state) => state.property)
+    const property = useAppSelector((state) => state.property.list)
     useEffect(() => {
         dispatch(fetchProperties())
     }, [])

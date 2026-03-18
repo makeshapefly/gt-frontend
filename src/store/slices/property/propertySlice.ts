@@ -9,16 +9,22 @@ export type Property = {
     postcode?: string
 }
 
-export type PropertyState = Property[]
+export type PropertyState = {
+    list: Property[]
+    selected?: Property
+}
 
-const initialState: PropertyState = []
+const initialState: PropertyState = {
+    list: [],
+    selected: undefined,
+}
 
 export const fetchProperties = createAsyncThunk<Property[]>(
     'property/fetchProperties',
     async () => {
         const { data, error } = await supabase
             .schema('gt')
-            .from('property')  // include schema if needed
+            .from('property')
             .select(`
             id,
             street,
@@ -42,40 +48,47 @@ export const fetchProperties = createAsyncThunk<Property[]>(
     }
 )
 
-/*export const fetchProperties = createAsyncThunk<Property[]>(
-    'property/fetchProperties',
-    async (_, thunkAPI) => {
+export const fetchPropertyById = createAsyncThunk<Property, string>(
+    'property/fetchPropertyById',
+    async (id: string) => {
         const { data, error } = await supabase
+            .schema('gt')
             .from('property')
             .select(`
-        id,
-        street as name,
-        property_roof (*)
-      `) // map street → name to match Property type
+        *,
+        property_tenure (*)
+      `)
+            .eq('id', id)
+            .single()
 
-        if (error) {
-            return [] // or you can throw: thunkAPI.rejectWithValue(error.message)
-        }
+        if (error) throw error
 
-        // data might be null, so force array
-        return (data ?? []) as unknown as Property[]
+        // 3. Map to your type
+        const property: Property = data
+
+        return property
     }
-) */
+)
 
 const propertySlice = createSlice({
     name: `${SLICE_BASE_NAME}/property`,
     initialState,
     reducers: {
-        setProperties(state, action: PayloadAction<PropertyState>) {
-            return action.payload
+        setProperties(state, action: PayloadAction<Property[]>) {
+            state.list = action.payload
         },
         addProperty(state, action: PayloadAction<Property>) {
-            state.push(action.payload)
+            state.list.push(action.payload
+            )
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchProperties.fulfilled, (state, action: PayloadAction<Property[]>) => {
-            return action.payload
+        builder.addCase(fetchProperties.fulfilled, (state, action) => {
+            state.list = action.payload
+        })
+
+        builder.addCase(fetchPropertyById.fulfilled, (state, action) => {
+            state.selected = action.payload
         })
     }
 })
