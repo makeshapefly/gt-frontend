@@ -21,6 +21,7 @@ const propertyMenu: Record<
     summary: { label: 'Summary', path: 'summary' },
     location: { label: 'Location', path: 'location' },
     spatial: { label: 'Spatial', path: 'spatial' },
+    frame: { label: 'Frame', path: 'frame' },
 }
 
 const EditProperty = () => {

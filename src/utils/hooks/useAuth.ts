@@ -39,6 +39,7 @@ function useAuth() {
                 email: values.userName,
                 password: values.password,
             });
+            console.log(JSON.stringify(data.session?.user))
             if (error) {
                 return {
                     status: 'failed',

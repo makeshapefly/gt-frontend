@@ -5,6 +5,7 @@ import locale, { LocaleState } from './slices/locale/localeSlice'
 import theme, { ThemeState } from './slices/theme/themeSlice'
 import property, { PropertyState } from './slices/property/propertySlice'
 import propertyType, { PropertyTypeState } from './slices/property/propertyTypeSlice'
+import propertyTenure, { PropertyTenureState } from './slices/property/propertyTenureSlice'
 import RtkQueryService from '@/services/RtkQueryService'
 
 export type RootState = {
@@ -12,7 +13,8 @@ export type RootState = {
     base: BaseState
     locale: LocaleState
     theme: ThemeState
-    property: PropertyState
+    property: PropertyState,
+    propertyTenure: PropertyTenureState,
     propertyType: PropertyTypeState
     /* eslint-disable @typescript-eslint/no-explicit-any */
     [RtkQueryService.reducerPath]: any
@@ -28,6 +30,7 @@ const staticReducers = {
     locale,
     theme,
     property,
+    propertyTenure,
     propertyType,
     [RtkQueryService.reducerPath]: RtkQueryService.reducer,
 }

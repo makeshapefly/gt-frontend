@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useMemo, useRef } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-import { HiOutlineEye, HiOutlineTrash } from 'react-icons/hi'
+import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useAppDispatch, useAppSelector } from "@/store"
 import useThemeClass from '@/utils/hooks/useThemeClass'
 import { useNavigate } from 'react-router-dom'
@@ -11,6 +11,9 @@ import type {
     ColumnDef,
     Row,
 } from '@/components/shared/DataTable'
+import { setSelectedProperty, toggleDeleteConfirmation } from '@/store/slices/property'
+import ProductDeleteConfirmation from './ProductDeleteConfirmation'
+import PropertyTableTools from './PropertyTableTools'
 
 type Property = {
     id: string
@@ -25,6 +28,8 @@ const ActionColumn = ({ row }: { row: Property }) => {
     const navigate = useNavigate()
 
     const onDelete = () => {
+        dispatch(toggleDeleteConfirmation(true))
+        dispatch(setSelectedProperty(row))
         //dispatch(setDeleteMode('single'))
         //dispatch(setSelectedRow([row.id]))
     }
@@ -40,7 +45,7 @@ const ActionColumn = ({ row }: { row: Property }) => {
                     className={`cursor-pointer p-2 hover:${textTheme}`}
                     onClick={onView}
                 >
-                    <HiOutlineEye />
+                    <HiOutlinePencil />
                 </span>
             </Tooltip>
             <Tooltip title="Delete">
@@ -61,14 +66,14 @@ const PropertyTable = () => {
     const dispatch = useAppDispatch()
     const property = useAppSelector((state) => state.property)
 
-   /* const { pageIndex, pageSize, sort, query, total } = useAppSelector(
-        (state) => state.salesOrderList.data.tableData,
-    ) */
+    /* const { pageIndex, pageSize, sort, query, total } = useAppSelector(
+         (state) => state.salesOrderList.data.tableData,
+     ) */
 
     const data = useAppSelector((state) => state.property.list)
 
     useEffect(() => {
-       // dispatch(setSelectedRows([]))
+        // dispatch(setSelectedRows([]))
         //fetchData()
     }, [dispatch]) //fetchData, pageIndex, pageSize, sort])
 
@@ -78,10 +83,10 @@ const PropertyTable = () => {
         }
     }, [data])
 
-   /* const tableData = useMemo(
-        () => ({ pageIndex, pageSize, sort, query, total }),
-        [pageIndex, pageSize, sort, query, total],
-    ) */
+    /* const tableData = useMemo(
+         () => ({ pageIndex, pageSize, sort, query, total }),
+         [pageIndex, pageSize, sort, query, total],
+     ) */
 
     const columns: ColumnDef<Property>[] = useMemo(
         () => [
@@ -125,9 +130,9 @@ const PropertyTable = () => {
 
     const onRowSelect = (checked: boolean, row: Property) => {
         if (checked) {
-           // dispatch(addRowItem([row.id]))
+            // dispatch(addRowItem([row.id]))
         } else {
-           // dispatch(removeRowItem(row.id))
+            // dispatch(removeRowItem(row.id))
         }
     }
 
@@ -139,30 +144,37 @@ const PropertyTable = () => {
                 originalRows.forEach((row) => {
                     selectedIds.push(row.id)
                 })
-               // dispatch(setSelectedRows(selectedIds))
+                // dispatch(setSelectedRows(selectedIds))
             } else {
-               // dispatch(setSelectedRows([]))
+                // dispatch(setSelectedRows([]))
             }
         },
         [dispatch],
     )
 
     return (
-        <DataTable
-            ref={tableRef}
-            columns={columns}
-            data={data}
-            pagingData={{
-                total: 10,
-                pageIndex: 0,
-                pageSize: 10,
-            }}
-            onPaginationChange={onPaginationChange}
-            onSelectChange={onSelectChange}
-            onSort={onSort}
-            onCheckBoxChange={onRowSelect}
-            onIndeterminateCheckBoxChange={onAllRowSelect}
-        />
+        <>
+            <div className="lg:flex items-center justify-between mb-4">
+                <div className="mb-4 lg:mb-0"></div>
+                <PropertyTableTools />
+            </div>
+            <DataTable
+                ref={tableRef}
+                columns={columns}
+                data={data}
+                pagingData={{
+                    total: 10,
+                    pageIndex: 0,
+                    pageSize: 10,
+                }}
+                onPaginationChange={onPaginationChange}
+                onSelectChange={onSelectChange}
+                onSort={onSort}
+                onCheckBoxChange={onRowSelect}
+                onIndeterminateCheckBoxChange={onAllRowSelect}
+            />
+            <ProductDeleteConfirmation />
+        </>
     )
 }
 

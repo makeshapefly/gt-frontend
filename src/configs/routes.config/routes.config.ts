@@ -23,4 +23,10 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Property/EditProperty')),
         authority: [],
     },
+    {
+        key: 'add-property',
+        path: `/app/add-property`,
+        component: lazy(() => import('@/views/Property/AddProperty')),
+        authority: [],
+    },
 ]

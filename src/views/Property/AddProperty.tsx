@@ -1,95 +1,84 @@
 import { useAppDispatch, useAppSelector } from "@/store"
 import { fetchPropertyTypes } from "@/store/slices/property/propertyTypeSlice"
 import { fetchPropertyTenures } from "@/store/slices/property/propertyTenureSlice"
-import { updatePropertySummary } from "@/store/slices/property/propertySlice"
+import { addProperty } from "@/store/slices/property/propertySlice"
 import { FormContainer } from '@/components/ui/Form'
-import FormDesription from './FormDesription'
-import FormRow from './FormRow'
+import FormDesription from './components/FormDesription'
+import FormRow from './components/FormRow'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { Field, FieldProps, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import { useEffect } from "react"
-import { HiCheck, HiOutlineUserCircle } from "react-icons/hi"
+import { HiCheck } from "react-icons/hi"
 import Select from "@/components/ui/Select"
-import Avatar from "@/components/ui/Avatar"
 import { components } from 'react-select'
 import type { OptionProps, ControlProps } from 'react-select'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
-
-type Property = {
-    id: string
-    name?: string
-    street?: string
-    postcode?: string
-    property_type_id?: string
-    property_tenure_id?: string
-}
-
-type EditPropertyProps = {
-    property: Property
-}
+import { supabase } from "@/superbaseClient"
 
 type Option = {
     value: string
     label: string
 }
 
-export type SummaryFormModel = {
+type FormModel = {
     name: string
+    street: string
+    postcode: string
     propertyTenure: Option | null
     propertyType: Option | null
 }
 
-type SummaryProps = {
-    data?: SummaryFormModel
-}
-
-const Summary: React.FC<EditPropertyProps> = ({ property }) => {
+const AddProperty: React.FC = () => {
     const dispatch = useAppDispatch()
     const propertyTypes = useAppSelector((state) => state.propertyType.list)
     const propertyTenures = useAppSelector((state) => state.propertyTenure.list)
+    const user = useAppSelector((state) => state.auth.user)
+    console.log("user: " + JSON.stringify(user))
 
     useEffect(() => {
         dispatch(fetchPropertyTypes())
         dispatch(fetchPropertyTenures())
     }, [dispatch])
 
+    // ✅ Yup validation (ALL required)
     const validationSchema = Yup.object().shape({
-        //name: Yup.string().required('Name is required'),
+        name: Yup.string().required('Street number is required'),
+        street: Yup.string().required('Street is required'),
+        postcode: Yup.string().required('Postcode is required'),
+        propertyType: Yup.object()
+            .nullable()
+            .required('Property type is required'),
+        propertyTenure: Yup.object()
+            .nullable()
+            .required('Property tenure is required'),
     })
 
     const onFormSubmit = async (
-        values: SummaryFormModel,
+        values: FormModel,
         setSubmitting: (isSubmitting: boolean) => void,
     ) => {
-        console.log('values', values)
-
-        if (!values.propertyType || !values.propertyTenure) {
-            toast.push(
-                <Notification title="Please select required fields" type="danger" />,
-                { placement: 'top-center' }
-            )
-            setSubmitting(false)
-            return
-        }
-
         try {
-            await dispatch(updatePropertySummary({
-                id: property.id,
-                //name: values.name,
-                property_type_id: values.propertyType?.value,
-                property_tenure_id: values.propertyTenure?.value,
+            //const user = await supabase.auth.getUser()
+            console.log("submitting: " + user.id)
+            await dispatch(addProperty({
+                property_name: `${values.name} ${values.name}`,
+                street: `${values.street}`,
+                postcode: values.postcode,
+                property_type_id: values.propertyType!.value,
+                property_tenure_id: values.propertyTenure!.value,
+                user_id: user.id
             })).unwrap()
 
             toast.push(
-                <Notification title="Property updated" type="success" />,
+                <Notification title="Property added" type="success" />,
                 { placement: 'top-center' }
             )
         } catch (error) {
             toast.push(
-                <Notification title="Update failed" type="danger" />,
+                <Notification title="Add failed" type="danger" />,
                 { placement: 'top-center' }
             )
         } finally {
@@ -97,91 +86,56 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
         }
     }
 
-    let data = {
-        propertyType: propertyTypes.find(pt => pt.id === property?.property_type_id) || null,
-        propertyTenure: propertyTenures.find(pt => pt.id === property?.property_tenure_id) || null,
-        name: '',
-    }
-
     const { Control } = components
 
-    const propertyTypeOptions: PropertyTypeOption[] = propertyTypes.map((pt) => ({
+    const propertyTypeOptions: Option[] = propertyTypes.map((pt) => ({
         value: pt.id,
         label: pt.name,
     }))
 
-    const propertyTenureOptions: PropertyTenureOption[] = propertyTenures.map((pt) => ({
+    const propertyTenureOptions: Option[] = propertyTenures.map((pt) => ({
         value: pt.id,
         label: pt.name,
     }))
-
-    type PropertyTypeOption = {
-        value: string
-        label: string
-    }
-
-    type PropertyTenureOption = {
-        value: string
-        label: string
-    }
 
     const CustomControl = ({
         children,
         ...props
-    }: ControlProps<PropertyTypeOption>) => {
-        const selected = props.getValue()[0]
-        return (
-            <Control {...props}>
-                {/* {selected && (
-                   <Avatar
-                        className="ltr:ml-4 rtl:mr-4"
-                        shape="circle"
-                        size={18}
-                        src={selected.imgPath}
-                    />
-                )} */}
-                {children}
-            </Control>
-        )
+    }: ControlProps<Option>) => {
+        return <Control {...props}>{children}</Control>
     }
 
     const CustomSelectOption = ({
         innerProps,
         label,
-        data,
         isSelected,
-    }: OptionProps<PropertyTypeOption>) => {
+    }: OptionProps<Option>) => {
         return (
             <div
-                className={`flex items-center justify-between p-2 ${isSelected
-                    ? 'bg-gray-100 dark:bg-gray-500'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-600'
-                    }`}
+                className={`flex items-center justify-between p-2 ${
+                    isSelected
+                        ? 'bg-gray-100 dark:bg-gray-500'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
                 {...innerProps}
             >
-                <div className="flex items-center">
-                    {/* <Avatar shape="circle" size={20} src={data.imgPath} /> */}
-                    <span className="ml-2 rtl:mr-2">{label}</span>
-                </div>
+                <span>{label}</span>
                 {isSelected && <HiCheck className="text-emerald-500 text-xl" />}
             </div>
         )
     }
 
-    const initialValues = {
-        propertyType: propertyTypes
-            .map(pt => ({ value: pt.id, label: pt.name || '' })) // convert slice to Select options
-            .find(opt => opt.value === property?.property_type_id) || null, // preselect
-        propertyTenure: propertyTenures
-            .map(pt => ({ value: pt.id, label: pt.name || '' })) // convert slice to Select options
-            .find(opt => opt.value === property?.property_tenure_id) || null, // preselect
-        name: property?.name || '', // prefill name if available
+    const initialValues: FormModel = {
+        name: '',
+        street: '',
+        postcode: '',
+        propertyType: null,
+        propertyTenure: null,
     }
 
     return (
-        propertyTypes.length > 0 && (
+        propertyTypes.length > 0 && propertyTenures.length > 0 && (
             <Formik
-                enableReinitialize
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={(values, { setSubmitting }) => {
@@ -189,26 +143,53 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
                     onFormSubmit(values, setSubmitting)
                 }}
             >
-                {({ values, touched, errors, isSubmitting, resetForm }) => {
+                {({ values, touched, errors, isSubmitting }) => {
                     const validatorProps = { touched, errors }
+
                     return (
                         <Form>
                             <FormContainer>
                                 <FormDesription
-                                    title="Summary"
-                                    desc="Summary Info about this property."
+                                    title="Add Property"
+                                    desc="Add a new property."
                                 />
-                                <FormRow
-                                    name="propertyType"
-                                    label="Property Type"
-                                    {...validatorProps}
-                                >
+
+                                {/* Street Number */}
+                                <FormRow name="name" label="Street Number" {...validatorProps}>
+                                    <Field
+                                        name="name"
+                                        placeholder="e.g. 123"
+                                        component={Input}
+                                    />
+                                </FormRow>
+
+                                {/* Street */}
+                                <FormRow name="street" label="Street" {...validatorProps}>
+                                    <Field
+                                        name="street"
+                                        placeholder="e.g. High Street"
+                                        component={Input}
+                                    />
+                                </FormRow>
+
+                                {/* Postcode */}
+                                <FormRow name="postcode" label="Postcode" {...validatorProps}>
+                                    <Field
+                                        name="postcode"
+                                        placeholder="e.g. HP4 3AP"
+                                        component={Input}
+                                    />
+                                </FormRow>
+
+                                {/* Property Type */}
+                                <FormRow name="propertyType" label="Property Type" {...validatorProps}>
                                     <Field name="propertyType">
                                         {({ field, form }: FieldProps) => (
-                                            <Select<PropertyTypeOption>
+                                            <Select<Option>
                                                 field={field}
                                                 form={form}
                                                 options={propertyTypeOptions}
+                                                placeholder="Please select"
                                                 components={{
                                                     Option: CustomSelectOption,
                                                     Control: CustomControl,
@@ -221,17 +202,16 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
                                         )}
                                     </Field>
                                 </FormRow>
-                                <FormRow
-                                    name="propertyTenure"
-                                    label="Property Tenure"
-                                    {...validatorProps}
-                                >
+
+                                {/* Property Tenure */}
+                                <FormRow name="propertyTenure" label="Property Tenure" {...validatorProps}>
                                     <Field name="propertyTenure">
                                         {({ field, form }: FieldProps) => (
-                                            <Select<PropertyTenureOption>
+                                            <Select<Option>
                                                 field={field}
                                                 form={form}
                                                 options={propertyTenureOptions}
+                                                placeholder="Please select"
                                                 components={{
                                                     Option: CustomSelectOption,
                                                     Control: CustomControl,
@@ -244,29 +224,15 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
                                         )}
                                     </Field>
                                 </FormRow>
-                                <FormRow
-                                    name="name"
-                                    label="Name"
-                                    {...validatorProps}
-                                >
-                                    <Field
-                                        type="text"
-                                        autoComplete="off"
-                                        name="name"
-                                        placeholder="Name"
-                                        component={Input}
-                                        prefix={
-                                            <HiOutlineUserCircle className="text-xl" />
-                                        }
-                                    />
-                                </FormRow>
+
+                                {/* Submit */}
                                 <div className="mt-4 ltr:text-right">
                                     <Button
                                         variant="solid"
                                         loading={isSubmitting}
                                         type="submit"
                                     >
-                                        {isSubmitting ? 'Updating' : 'Update'}
+                                        {isSubmitting ? 'Adding' : 'Add Property'}
                                     </Button>
                                 </div>
                             </FormContainer>
@@ -278,5 +244,4 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
     )
 }
 
-
-export default Summary
+export default AddProperty
