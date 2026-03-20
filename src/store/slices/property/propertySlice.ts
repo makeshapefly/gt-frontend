@@ -9,16 +9,27 @@ export type Property = {
     postcode?: string
 }
 
+export type PropertyRoof = {
+    id: string
+    property_id: string
+    frame: string | null
+    covering: string | null
+    percentage: string | null
+    insulation: string | null
+}
+
 export type PropertyState = {
     list: Property[]
     selected?: Property
     deleteConfirmation: boolean
+    propertyRoofs: PropertyRoof[]
 }
 
 const initialState: PropertyState = {
     list: [],
     selected: undefined,
     deleteConfirmation: false,
+    propertyRoofs: [],
 }
 
 export const fetchProperties = createAsyncThunk<Property[]>(
@@ -36,7 +47,6 @@ export const fetchProperties = createAsyncThunk<Property[]>(
 
         if (error) throw error
 
-        // 3. Map to your type
         const properties: Property[] = (data ?? []).map(item => ({
             id: item.id,
             street: item.street,
@@ -63,7 +73,6 @@ export const fetchPropertyById = createAsyncThunk<Property, string>(
 
         if (error) throw error
 
-        // 3. Map to your type
         const property: Property = data
 
         return property
@@ -93,7 +102,7 @@ export const updatePropertySummary = createAsyncThunk(
 )
 
 export const deleteProperty = createAsyncThunk<
-    string, // return the id
+    string,
     string
 >(
     'property/deleteProperty',
@@ -112,7 +121,7 @@ export const deleteProperty = createAsyncThunk<
 
         console.log(data)
 
-        return id // return the deleted property id
+        return id
     }
 )
 
@@ -122,6 +131,7 @@ export const addProperty = createAsyncThunk<
         property_name: string
         street: string
         postcode: string
+        town?: string
         property_type_id: string
         property_tenure_id: string
         user_id: string
@@ -142,6 +152,90 @@ export const addProperty = createAsyncThunk<
         }
 
         return data
+    }
+)
+
+// --- Property roof rows ---
+
+export const fetchPropertyRoofs = createAsyncThunk<PropertyRoof[], string>(
+    'property/fetchPropertyRoofs',
+    async (propertyId: string) => {
+        const { data, error } = await supabase
+            .schema('gt')
+            .from('property_roof')
+            .select('id, property_id, frame, covering, percentage, insulation')
+            .eq('property_id', propertyId)
+
+        if (error) throw error
+
+        return (data ?? []) as PropertyRoof[]
+    }
+)
+
+export const addPropertyRoof = createAsyncThunk<
+    PropertyRoof,
+    {
+        property_id: string
+        frame: string | null
+        covering: string | null
+        percentage: string | null
+        insulation: string | null
+    }
+>(
+    'property/addPropertyRoof',
+    async (payload, { rejectWithValue }) => {
+        const { data, error } = await supabase
+            .schema('gt')
+            .from('property_roof')
+            .insert([payload])
+            .select('id, property_id, frame, covering, percentage, insulation')
+            .single()
+
+        if (error) return rejectWithValue(error.message)
+
+        return data as PropertyRoof
+    }
+)
+
+export const deletePropertyRoof = createAsyncThunk<string, string>(
+    'property/deletePropertyRoof',
+    async (id: string, { rejectWithValue }) => {
+        const { error } = await supabase
+            .schema('gt')
+            .from('property_roof')
+            .delete()
+            .eq('id', id)
+
+        if (error) return rejectWithValue(error.message)
+
+        return id
+    }
+)
+
+export const updatePropertyRoof = createAsyncThunk<
+    PropertyRoof,
+    {
+        id: string
+        frame: string | null
+        covering: string | null
+        percentage: string | null
+        insulation: string | null
+    }
+>(
+    'property/updatePropertyRoof',
+    async (payload, { rejectWithValue }) => {
+        const { id, ...fields } = payload
+        const { data, error } = await supabase
+            .schema('gt')
+            .from('property_roof')
+            .update(fields)
+            .eq('id', id)
+            .select('id, property_id, frame, covering, percentage, insulation')
+            .single()
+
+        if (error) return rejectWithValue(error.message)
+
+        return data as PropertyRoof
     }
 )
 
@@ -184,7 +278,6 @@ const propertySlice = createSlice({
         builder.addCase(deleteProperty.fulfilled, (state, action) => {
             state.list = state.list.filter(p => p.id !== action.payload)
 
-            // if the deleted one was selected, clear it
             if (state.selected?.id === action.payload) {
                 state.selected = undefined
             }
@@ -192,6 +285,25 @@ const propertySlice = createSlice({
 
         builder.addCase(addProperty.fulfilled, (state, action) => {
             state.list.push(action.payload)
+        })
+
+        builder.addCase(fetchPropertyRoofs.fulfilled, (state, action) => {
+            state.propertyRoofs = action.payload
+        })
+
+        builder.addCase(addPropertyRoof.fulfilled, (state, action) => {
+            state.propertyRoofs.push(action.payload)
+        })
+
+        builder.addCase(updatePropertyRoof.fulfilled, (state, action) => {
+            const index = state.propertyRoofs.findIndex(r => r.id === action.payload.id)
+            if (index !== -1) {
+                state.propertyRoofs[index] = action.payload
+            }
+        })
+
+        builder.addCase(deletePropertyRoof.fulfilled, (state, action) => {
+            state.propertyRoofs = state.propertyRoofs.filter(r => r.id !== action.payload)
         })
     }
 })

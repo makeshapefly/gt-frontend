@@ -9,7 +9,7 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { Field, FieldProps, Form, Formik } from 'formik'
 import * as Yup from 'yup'
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { HiCheck } from "react-icons/hi"
 import Select from "@/components/ui/Select"
 import { components } from 'react-select'
@@ -27,6 +27,9 @@ type FormModel = {
     name: string
     street: string
     postcode: string
+    town: string
+    latitude: number | null
+    longitude: number | null
     propertyTenure: Option | null
     propertyType: Option | null
 }
@@ -38,16 +41,43 @@ const AddProperty: React.FC = () => {
     const user = useAppSelector((state) => state.auth.user)
     console.log("user: " + JSON.stringify(user))
 
+    const [postcodeLoading, setPostcodeLoading] = useState(false)
+    const [postcodeError, setPostcodeError] = useState<string | null>(null)
+
     useEffect(() => {
         dispatch(fetchPropertyTypes())
         dispatch(fetchPropertyTenures())
     }, [dispatch])
 
-    // ✅ Yup validation (ALL required)
+    const lookupPostcode = async (
+        postcode: string,
+        setFieldValue: (field: string, value: unknown) => void,
+    ) => {
+        if (!postcode.trim()) return
+        setPostcodeLoading(true)
+        setPostcodeError(null)
+        try {
+            const res = await fetch(
+                `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode.trim())}`,
+            )
+            if (!res.ok) {
+                setPostcodeError('Postcode not found')
+                return
+            }
+            const { result } = await res.json()
+            setFieldValue('town', result.admin_district ?? '')
+        } catch {
+            setPostcodeError('Lookup failed. Please try again.')
+        } finally {
+            setPostcodeLoading(false)
+        }
+    }
+
     const validationSchema = Yup.object().shape({
         name: Yup.string().required('Street number is required'),
         street: Yup.string().required('Street is required'),
         postcode: Yup.string().required('Postcode is required'),
+        town: Yup.string(),
         propertyType: Yup.object()
             .nullable()
             .required('Property type is required'),
@@ -64,9 +94,12 @@ const AddProperty: React.FC = () => {
             //const user = await supabase.auth.getUser()
             console.log("submitting: " + user.id)
             await dispatch(addProperty({
-                property_name: `${values.name} ${values.name}`,
-                street: `${values.street}`,
+                property_name: `${values.name} ${values.street}`,
+                street: values.street,
                 postcode: values.postcode,
+                town: values.town || undefined,
+                latitude: values.latitude ?? undefined,
+                longitude: values.longitude ?? undefined,
                 property_type_id: values.propertyType!.value,
                 property_tenure_id: values.propertyTenure!.value,
                 user_id: user.id
@@ -129,6 +162,9 @@ const AddProperty: React.FC = () => {
         name: '',
         street: '',
         postcode: '',
+        town: '',
+        latitude: null,
+        longitude: null,
         propertyType: null,
         propertyTenure: null,
     }
@@ -143,7 +179,7 @@ const AddProperty: React.FC = () => {
                     onFormSubmit(values, setSubmitting)
                 }}
             >
-                {({ values, touched, errors, isSubmitting }) => {
+                {({ values, touched, errors, isSubmitting, setFieldValue }) => {
                     const validatorProps = { touched, errors }
 
                     return (
@@ -172,11 +208,34 @@ const AddProperty: React.FC = () => {
                                     />
                                 </FormRow>
 
-                                {/* Postcode */}
+                                {/* Postcode with lookup */}
                                 <FormRow name="postcode" label="Postcode" {...validatorProps}>
+                                    <div className="flex gap-2">
+                                        <Field
+                                            name="postcode"
+                                            placeholder="e.g. HP4 3AP"
+                                            component={Input}
+                                        />
+                                        <Button
+                                            type="button"
+                                            loading={postcodeLoading}
+                                            onClick={() =>
+                                                lookupPostcode(values.postcode, setFieldValue)
+                                            }
+                                        >
+                                            Lookup
+                                        </Button>
+                                    </div>
+                                    {postcodeError && (
+                                        <p className="text-red-500 text-sm mt-1">{postcodeError}</p>
+                                    )}
+                                </FormRow>
+
+                                {/* Town — auto-filled from postcode lookup */}
+                                <FormRow name="town" label="Town / District" {...validatorProps}>
                                     <Field
-                                        name="postcode"
-                                        placeholder="e.g. HP4 3AP"
+                                        name="town"
+                                        placeholder="Auto-filled from postcode lookup"
                                         component={Input}
                                     />
                                 </FormRow>

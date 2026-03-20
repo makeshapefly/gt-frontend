@@ -6,6 +6,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from "@/store"
 import { fetchPropertyById } from "@/store/slices/property"
 import Summary from './components/Summary'
+import Spatial from './components/Spatial'
 
 const { TabNav, TabList } = Tabs
 
@@ -81,6 +82,9 @@ const EditProperty = () => {
                         )}
                         {currentTab === 'location' && (
                             selectedProperty && <Location property={selectedProperty} />
+                        )}
+                        {currentTab === 'spatial' && (
+                            selectedProperty && <Spatial property={selectedProperty} />
                         )}
                     </Suspense>
                 </div>
