@@ -21,11 +21,20 @@ export type PropertyRoof = {
     insulation: string | null
 }
 
+export type PropertyWall = {
+    id: string
+    property_id: string
+    type: string | null
+    insulation: string | null
+    percentage: string | null
+}
+
 export type PropertyState = {
     list: Property[]
     selected?: Property
     deleteConfirmation: boolean
     propertyRoofs: PropertyRoof[]
+    propertyWalls: PropertyWall[]
 }
 
 const initialState: PropertyState = {
@@ -33,6 +42,7 @@ const initialState: PropertyState = {
     selected: undefined,
     deleteConfirmation: false,
     propertyRoofs: [],
+    propertyWalls: [],
 }
 
 export const fetchProperties = createAsyncThunk<Property[]>(
@@ -182,7 +192,7 @@ export const fetchPropertyRoofs = createAsyncThunk<PropertyRoof[], string>(
 )
 
 export const addPropertyRoof = createAsyncThunk<
-    PropertyRoof,
+    void,
     {
         property_id: string
         frame: string | null
@@ -193,16 +203,12 @@ export const addPropertyRoof = createAsyncThunk<
 >(
     'property/addPropertyRoof',
     async (payload, { rejectWithValue }) => {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .schema('gt')
             .from('property_roof')
             .insert([payload])
-            .select('id, property_id, frame, covering, percentage, insulation')
-            .single()
 
         if (error) return rejectWithValue(error.message)
-
-        return data as PropertyRoof
     }
 )
 
@@ -245,6 +251,84 @@ export const updatePropertyRoof = createAsyncThunk<
         if (error) return rejectWithValue(error.message)
 
         return data as PropertyRoof
+    }
+)
+
+// --- Property wall rows ---
+
+export const fetchPropertyWalls = createAsyncThunk<PropertyWall[], string>(
+    'property/fetchPropertyWalls',
+    async (propertyId: string) => {
+        const { data, error } = await supabase
+            .schema('gt')
+            .from('property_wall')
+            .select('id, property_id, type, insulation, percentage')
+            .eq('property_id', propertyId)
+
+        if (error) throw error
+
+        return (data ?? []) as PropertyWall[]
+    }
+)
+
+export const addPropertyWall = createAsyncThunk<
+    void,
+    {
+        property_id: string
+        type: string | null
+        insulation: string | null
+        percentage: string | null
+    }
+>(
+    'property/addPropertyWall',
+    async (payload, { rejectWithValue }) => {
+        const { error } = await supabase
+            .schema('gt')
+            .from('property_wall')
+            .insert([payload])
+
+        if (error) return rejectWithValue(error.message)
+    }
+)
+
+export const updatePropertyWall = createAsyncThunk<
+    PropertyWall,
+    {
+        id: string
+        type: string | null
+        insulation: string | null
+        percentage: string | null
+    }
+>(
+    'property/updatePropertyWall',
+    async (payload, { rejectWithValue }) => {
+        const { id, ...fields } = payload
+        const { data, error } = await supabase
+            .schema('gt')
+            .from('property_wall')
+            .update(fields)
+            .eq('id', id)
+            .select('id, property_id, type, insulation, percentage')
+            .single()
+
+        if (error) return rejectWithValue(error.message)
+
+        return data as PropertyWall
+    }
+)
+
+export const deletePropertyWall = createAsyncThunk<string, string>(
+    'property/deletePropertyWall',
+    async (id: string, { rejectWithValue }) => {
+        const { error } = await supabase
+            .schema('gt')
+            .from('property_wall')
+            .delete()
+            .eq('id', id)
+
+        if (error) return rejectWithValue(error.message)
+
+        return id
     }
 )
 
@@ -300,8 +384,8 @@ const propertySlice = createSlice({
             state.propertyRoofs = action.payload
         })
 
-        builder.addCase(addPropertyRoof.fulfilled, (state, action) => {
-            state.propertyRoofs.push(action.payload)
+        builder.addCase(addPropertyRoof.fulfilled, () => {
+            // re-fetch after save to get fresh IDs
         })
 
         builder.addCase(updatePropertyRoof.fulfilled, (state, action) => {
@@ -313,6 +397,25 @@ const propertySlice = createSlice({
 
         builder.addCase(deletePropertyRoof.fulfilled, (state, action) => {
             state.propertyRoofs = state.propertyRoofs.filter(r => r.id !== action.payload)
+        })
+
+        builder.addCase(fetchPropertyWalls.fulfilled, (state, action) => {
+            state.propertyWalls = action.payload
+        })
+
+        builder.addCase(addPropertyWall.fulfilled, () => {
+            // re-fetch after save to get fresh IDs
+        })
+
+        builder.addCase(updatePropertyWall.fulfilled, (state, action) => {
+            const index = state.propertyWalls.findIndex(w => w.id === action.payload.id)
+            if (index !== -1) {
+                state.propertyWalls[index] = action.payload
+            }
+        })
+
+        builder.addCase(deletePropertyWall.fulfilled, (state, action) => {
+            state.propertyWalls = state.propertyWalls.filter(w => w.id !== action.payload)
         })
     }
 })
