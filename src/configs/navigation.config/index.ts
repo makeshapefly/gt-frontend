@@ -30,7 +30,7 @@ const navigationConfig: NavigationTree[] = [
     {
         key: 'improvements',
         path: '/improvements',
-        title: 'Improvements',
+        title: 'Upgrades',
         translateKey: 'nav.improvements',
         icon: 'improvements',
         type: NAV_ITEM_TYPE_ITEM,

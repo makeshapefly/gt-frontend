@@ -31,7 +31,7 @@ type Property = {
     property_tenure_id?: string
     date_of_construction?: string | null
     construction_age_band?: string | null
-    epc_rating?: string | null
+    epc_rating?: number | null
 }
 
 type EditPropertyProps = {
@@ -48,18 +48,16 @@ export type SummaryFormModel = {
     propertyType: Option | null
     date_of_construction: Date | null
     construction_age_band: Option | null
-    epc_rating: Option | null
+    epc_rating: number | null
 }
 
 const ageBandOptions: Option[] = [
     { value: '1800-1900', label: '1800-1900' },
     { value: '1900-2026', label: '1900-2026' },
+    { value: '1927-1970', label: '1900-2026' },
+    { value: '1970-2026', label: '1900-2026' },
 ]
 
-const epcRatingOptions: Option[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((r) => ({
-    value: r,
-    label: r,
-}))
 
 const Summary: React.FC<EditPropertyProps> = ({ property }) => {
     const dispatch = useAppDispatch()
@@ -90,7 +88,7 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
                     ? values.date_of_construction.toISOString().split('T')[0]
                     : null,
                 construction_age_band: values.construction_age_band?.value ?? null,
-                epc_rating: values.epc_rating?.value ?? null,
+                epc_rating: values.epc_rating,
             })).unwrap()
 
             setEditingEpc(false)
@@ -184,7 +182,7 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
             ? new Date(property.date_of_construction)
             : null,
         construction_age_band: ageBandOptions.find(o => o.value === property?.construction_age_band) || null,
-        epc_rating: epcRatingOptions.find(o => o.value === property?.epc_rating) || null,
+        epc_rating: property?.epc_rating ?? null,
     }
 
     return (
@@ -313,20 +311,26 @@ const Summary: React.FC<EditPropertyProps> = ({ property }) => {
                                                 )}
                                             </div>
                                             <p className="text-sm text-gray-500 mt-1">Energy Performance Certificate rating for this property.</p>
-                                            {property.epc_rating && !editingEpc ? (
-                                                <EPCRating rating={property.epc_rating} />
+                                            {property.epc_rating != null && !editingEpc ? (
+                                                <EPCRating score={property.epc_rating} />
                                             ) : (
                                                 <div className="mt-4">
-                                                    {!property.epc_rating && (
-                                                        <p className="text-sm text-gray-400 mb-2">No EPC rating recorded. Select one below.</p>
+                                                    {property.epc_rating == null && (
+                                                        <p className="text-sm text-gray-400 mb-2">No EPC score recorded. Enter one below.</p>
                                                     )}
                                                     <Field name="epc_rating">
                                                         {({ field, form }: FieldProps) => (
-                                                            <Select<Option>
-                                                                options={epcRatingOptions}
-                                                                value={values.epc_rating}
-                                                                onChange={(opt) => form.setFieldValue(field.name, opt)}
-                                                                placeholder="Select rating A–G..."
+                                                            <input
+                                                                type="number"
+                                                                min={1}
+                                                                max={100}
+                                                                value={field.value ?? ''}
+                                                                onChange={(e) => {
+                                                                    const val = e.target.value
+                                                                    form.setFieldValue(field.name, val === '' ? null : Number(val))
+                                                                }}
+                                                                placeholder="Enter score (1–100)"
+                                                                className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                             />
                                                         )}
                                                     </Field>

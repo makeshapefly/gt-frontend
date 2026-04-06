@@ -9,7 +9,7 @@ export type Property = {
     postcode?: string
     date_of_construction?: string | null
     construction_age_band?: string | null
-    epc_rating?: string | null
+    epc_rating?: number | null
 }
 
 export type PropertyRoof = {
@@ -94,7 +94,7 @@ export const updatePropertySummary = createAsyncThunk(
         property_tenure_id: string
         date_of_construction: string | null
         construction_age_band: string | null
-        epc_rating: string | null
+        epc_rating: number | null
     }) => {
         const { data, error } = await supabase
             .schema('gt')

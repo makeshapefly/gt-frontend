@@ -1,19 +1,24 @@
 type Props = {
-    rating: string
+    score: number
 }
 
 const BANDS = [
-    { rating: 'A', label: '92–100', color: 'bg-green-700', width: 'w-[40%]' },
-    { rating: 'B', label: '81–91',  color: 'bg-green-500', width: 'w-[47%]' },
-    { rating: 'C', label: '69–80',  color: 'bg-lime-400',  width: 'w-[54%]' },
-    { rating: 'D', label: '55–68',  color: 'bg-yellow-400',width: 'w-[61%]' },
-    { rating: 'E', label: '39–54',  color: 'bg-orange-400',width: 'w-[68%]' },
-    { rating: 'F', label: '21–38',  color: 'bg-orange-600',width: 'w-[75%]' },
-    { rating: 'G', label: '1–20',   color: 'bg-red-600',   width: 'w-[82%]' },
+    { rating: 'A', min: 92, max: 100, label: '92–100', color: 'bg-green-700', width: 'w-[40%]' },
+    { rating: 'B', min: 81, max: 91,  label: '81–91',  color: 'bg-green-500', width: 'w-[47%]' },
+    { rating: 'C', min: 69, max: 80,  label: '69–80',  color: 'bg-lime-400',  width: 'w-[54%]' },
+    { rating: 'D', min: 55, max: 68,  label: '55–68',  color: 'bg-yellow-400',width: 'w-[61%]' },
+    { rating: 'E', min: 39, max: 54,  label: '39–54',  color: 'bg-orange-400',width: 'w-[68%]' },
+    { rating: 'F', min: 21, max: 38,  label: '21–38',  color: 'bg-orange-600',width: 'w-[75%]' },
+    { rating: 'G', min: 1,  max: 20,  label: '1–20',   color: 'bg-red-600',   width: 'w-[82%]' },
 ]
 
-const EPCRating: React.FC<Props> = ({ rating }) => {
-    const current = rating.toUpperCase()
+function scoreToRating(score: number): string {
+    const band = BANDS.find((b) => score >= b.min && score <= b.max)
+    return band?.rating ?? 'G'
+}
+
+const EPCRating: React.FC<Props> = ({ score }) => {
+    const current = scoreToRating(score)
 
     return (
         <div className="flex flex-col gap-1 mt-4">
@@ -30,7 +35,7 @@ const EPCRating: React.FC<Props> = ({ rating }) => {
                         </div>
                         <span className="text-xs text-gray-500">{band.label}</span>
                         {isActive && (
-                            <span className="text-xs font-bold text-gray-800">◀ Current</span>
+                            <span className="text-xs font-bold text-gray-800">◀ {score} ({band.rating})</span>
                         )}
                     </div>
                 )

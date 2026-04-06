@@ -26,6 +26,20 @@ const EPC_COLORS: Record<string, string> = {
 
 const EPC_ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
+const EPC_BANDS = [
+    { rating: 'A', min: 92, max: 100 },
+    { rating: 'B', min: 81, max: 91 },
+    { rating: 'C', min: 69, max: 80 },
+    { rating: 'D', min: 55, max: 68 },
+    { rating: 'E', min: 39, max: 54 },
+    { rating: 'F', min: 21, max: 38 },
+    { rating: 'G', min: 1,  max: 20 },
+]
+
+function scoreToRating(score: number): string {
+    return EPC_BANDS.find((b) => score >= b.min && score <= b.max)?.rating ?? 'G'
+}
+
 const Home = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
@@ -38,8 +52,8 @@ const Home = () => {
     const epcChartData = useMemo(() => {
         const counts: Record<string, number> = {}
         for (const p of properties) {
-            if (p.epc_rating) {
-                const r = p.epc_rating.toUpperCase()
+            if (p.epc_rating != null) {
+                const r = scoreToRating(p.epc_rating)
                 counts[r] = (counts[r] ?? 0) + 1
             }
         }
