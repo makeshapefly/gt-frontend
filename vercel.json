@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/simplypostcode/:path*",
+      "destination": "https://api.simplylookupadmin.co.uk/:path*"
+    }
+  ]
+}
