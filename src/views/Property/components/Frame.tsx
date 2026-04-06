@@ -362,6 +362,7 @@ const Frame: React.FC<EditPropertyProps> = ({ property }) => {
                                     loading={isSubmitting}
                                     icon={<AiOutlineSave />}
                                     type="submit"
+                                    disabled={totalPercentage > 100}
                                 >
                                     Save
                                 </Button>

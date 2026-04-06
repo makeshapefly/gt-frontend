@@ -131,7 +131,7 @@ const Home = () => {
                             icon={<HiOutlineOfficeBuilding />}
                         />
                         <div>
-                            <h4 className="font-bold leading-none mb-2">Improvements</h4>
+                            <h4 className="font-bold leading-none mb-2">Upgrades</h4>
                             <p>12</p>
                         </div>
                     </div>
