@@ -14,7 +14,8 @@ const Side = ({ children, content, ...rest }: SideProps) => {
             <div
                 className="bg-no-repeat bg-cover py-6 px-16 flex-col justify-between hidden lg:flex"
                 style={{
-                    backgroundImage: `url('/img/others/auth-side-bg.jpg')`,
+                    //backgroundImage: `url('/img/others/auth-side-bg.jpg')`,
+                    background: `#090046`
                 }}
             >
                 <Logo mode="dark" />
