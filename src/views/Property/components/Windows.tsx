@@ -39,6 +39,7 @@ type WindowFormValues = {
     frame: string
     area_m2: string
     room_volume_m3: string
+    date_of_installation: string
 }
 
 type Option = { value: string; label: string }
@@ -81,7 +82,7 @@ const validationSchema = Yup.object({
     room_volume_m3: Yup.number().typeError('Must be a number').nullable(),
 })
 
-const emptyForm: WindowFormValues = { window_number: '', type: '', frame: '', area_m2: '', room_volume_m3: '' }
+const emptyForm: WindowFormValues = { window_number: '', type: '', frame: '', area_m2: '', room_volume_m3: '', date_of_installation: '' }
 
 const Windows: React.FC<EditPropertyProps> = ({ property }) => {
     const dispatch = useAppDispatch()
@@ -131,6 +132,7 @@ const Windows: React.FC<EditPropertyProps> = ({ property }) => {
             frame: values.frame || null,
             area_m2: values.area_m2 !== '' ? parseFloat(values.area_m2) : null,
             room_volume_m3: values.room_volume_m3 !== '' ? parseFloat(values.room_volume_m3) : null,
+            date_of_installation: values.date_of_installation || null,
         }
         try {
             if (editingWindow) {
@@ -258,6 +260,7 @@ const Windows: React.FC<EditPropertyProps> = ({ property }) => {
                     frame: editingWindow.frame ?? '',
                     area_m2: editingWindow.area_m2?.toString() ?? '',
                     room_volume_m3: editingWindow.room_volume_m3?.toString() ?? '',
+                    date_of_installation: editingWindow.date_of_installation?.toString() ?? '',
                 } : emptyForm}
                 validationSchema={validationSchema}
                 onSubmit={onSubmit}
@@ -340,6 +343,17 @@ const Windows: React.FC<EditPropertyProps> = ({ property }) => {
                                     <Field name="room_volume_m3">
                                         {({ field }: FieldProps) => (
                                             <Input size="sm" placeholder="e.g. 30.5" {...field} />
+                                        )}
+                                    </Field>
+                                </FormItem>
+                                <FormItem
+                                    label="Date of Installation"
+                                    invalid={!!errors.date_of_installation && touched.date_of_installation}
+                                    errorMessage={errors.date_of_installation}
+                                >
+                                    <Field name="date_of_installation">
+                                        {({ field }: FieldProps) => (
+                                            <Input size="sm" {...field} />
                                         )}
                                     </Field>
                                 </FormItem>

@@ -52,10 +52,19 @@ export type SummaryFormModel = {
 }
 
 const ageBandOptions: Option[] = [
-    { value: '1800-1900', label: '1800-1900' },
-    { value: '1900-2026', label: '1900-2026' },
-    { value: '1927-1970', label: '1900-2026' },
-    { value: '1970-2026', label: '1900-2026' },
+    { value: 'pre 1850', label: 'pre 1850' },
+    { value: '1850-99', label: '1850-99' },
+    { value: '1900-18', label: '1900-18' },
+    { value: '1919-44', label: '1919-44' },
+    { value: '1945-64', label: '1945-64' },
+    { value: '1965-74', label: '1965-74' },
+    { value: '1975-80', label: '1975-80' },
+    { value: '1981-90', label: '1981-90' },
+    { value: '1991-95', label: '1991-95' },
+    { value: '1996-02', label: '1996-02' },
+    { value: '2003-06', label: '2003-06' },
+    { value: '2007-11', label: '2007-11' },
+    { value: '2011 onwards', label: '2011 onwards' },
 ]
 
 

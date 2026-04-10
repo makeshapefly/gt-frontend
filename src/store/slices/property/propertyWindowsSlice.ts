@@ -11,6 +11,7 @@ export type PropertyWindow = {
     frame: string | null
     area_m2: number | null
     room_volume_m3: number | null
+    date_of_installation: string | null
 }
 
 export type PropertyWindowsState = {
@@ -23,7 +24,7 @@ const initialState: PropertyWindowsState = {
     loading: false,
 }
 
-const WINDOW_FIELDS = 'id, property_id, room_id, window_number, type, frame, area_m2, room_volume_m3'
+const WINDOW_FIELDS = 'id, property_id, room_id, window_number, type, frame, area_m2, room_volume_m3, date_of_installation'
 
 export const fetchPropertyWindows = createAsyncThunk<PropertyWindow[], string>(
     `${SLICE_BASE_NAME}/fetchPropertyWindows`,
@@ -48,6 +49,7 @@ export const addPropertyWindow = createAsyncThunk<PropertyWindow, {
     frame: string | null
     area_m2: number | null
     room_volume_m3: number | null
+    date_of_installation: string | null
 }>(
     `${SLICE_BASE_NAME}/addPropertyWindow`,
     async (payload, { rejectWithValue }) => {
@@ -71,6 +73,7 @@ export const updatePropertyWindow = createAsyncThunk<PropertyWindow, {
     frame: string | null
     area_m2: number | null
     room_volume_m3: number | null
+    date_of_installation: string | null
 }>(
     `${SLICE_BASE_NAME}/updatePropertyWindow`,
     async ({ id, ...fields }, { rejectWithValue }) => {

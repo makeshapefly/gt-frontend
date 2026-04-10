@@ -63,7 +63,7 @@ type FormValues = {
 
 const frameOptions: Option[] = [
     { value: 'metal', label: 'Metal' },
-    { value: 'wood', label: 'Wood' },
+    { value: 'timber', label: 'Timber' },
 ]
 
 const coveringOptions: Option[] = [
@@ -72,9 +72,9 @@ const coveringOptions: Option[] = [
 ]
 
 const roofInsulationOptions: Option[] = [
-    { value: 'no_insulation', label: 'No Insulation' },
-    { value: 'full_insulation', label: 'Full Insulation' },
-    { value: 'partial_insulation', label: 'Partial Insulation' },
+    { value: 'no_insulation', label: 'None' },
+    { value: 'full_insulation', label: 'Full' },
+    { value: 'partial_insulation', label: 'Partial' },
 ]
 
 const wallTypeOptions: Option[] = [
