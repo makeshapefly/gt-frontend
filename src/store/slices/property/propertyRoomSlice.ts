@@ -11,6 +11,8 @@ export type Radiator = {
     height_mm: number | null
     width_mm: number | null
     output_watts: number | null
+    manufacturer: string | null
+    model: string | null
 }
 
 export type PropertyRoom = {
@@ -31,8 +33,8 @@ const initialState: PropertyRoomState = {
     selectedRoom: undefined,
 }
 
-const ROOM_FIELDS = 'id, property_id, room_number, type, radiators:radiator(id, property_id, room_id, type, material, height_mm, width_mm, output_watts)'
-const RADIATOR_FIELDS = 'id, property_id, room_id, type, material, height_mm, width_mm, output_watts'
+const ROOM_FIELDS = 'id, property_id, room_number, type, radiators:radiator(id, property_id, room_id, type, material, height_mm, width_mm, output_watts, manufacturer, model)'
+const RADIATOR_FIELDS = 'id, property_id, room_id, type, material, height_mm, width_mm, output_watts, manufacturer, model'
 
 export const fetchPropertyRooms = createAsyncThunk<PropertyRoom[], string>(
     `${SLICE_BASE_NAME}/fetchPropertyRooms`,
@@ -143,6 +145,8 @@ export const addRadiator = createAsyncThunk<Radiator, {
     height_mm: number | null
     width_mm: number | null
     output_watts: number | null
+    manufacturer: string | null
+    model: string | null
 }>(
     `${SLICE_BASE_NAME}/addRadiator`,
     async (payload, { rejectWithValue }) => {
@@ -166,6 +170,8 @@ export const updateRadiator = createAsyncThunk<Radiator, {
     height_mm: number | null
     width_mm: number | null
     output_watts: number | null
+    manufacturer: string | null
+    model: string | null
 }>(
     `${SLICE_BASE_NAME}/updateRadiator`,
     async ({ id, ...fields }, { rejectWithValue }) => {

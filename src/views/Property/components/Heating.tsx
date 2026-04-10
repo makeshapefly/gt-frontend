@@ -56,6 +56,8 @@ type RadiatorFormValues = {
     height_mm: string
     width_mm: string
     output_watts: string
+    manufacturer: string
+    model: string
 }
 
 type Option = { value: string; label: string }
@@ -99,7 +101,7 @@ const radiatorValidation = Yup.object({
     output_watts: Yup.number().typeError('Must be a number').nullable(),
 })
 
-const emptyRadiatorForm: RadiatorFormValues = { type: '', material: '', height_mm: '', width_mm: '', output_watts: '' }
+const emptyRadiatorForm: RadiatorFormValues = { type: '', material: '', height_mm: '', width_mm: '', output_watts: '', manufacturer: '', model: '' }
 
 const Heating: React.FC<EditPropertyProps> = ({ property }) => {
     const dispatch = useAppDispatch()
@@ -187,6 +189,8 @@ const Heating: React.FC<EditPropertyProps> = ({ property }) => {
             height_mm: values.height_mm !== '' ? parseInt(values.height_mm) : null,
             width_mm: values.width_mm !== '' ? parseInt(values.width_mm) : null,
             output_watts: values.output_watts !== '' ? parseInt(values.output_watts) : null,
+            manufacturer: values.manufacturer || null,
+            model: values.model || null,
         }
         try {
             if (editingRadiator) {
@@ -337,6 +341,8 @@ const Heating: React.FC<EditPropertyProps> = ({ property }) => {
                                                 <th className="text-left py-2 pr-3 font-medium text-gray-600 dark:text-gray-400">H (mm)</th>
                                                 <th className="text-left py-2 pr-3 font-medium text-gray-600 dark:text-gray-400">W (mm)</th>
                                                 <th className="text-left py-2 pr-3 font-medium text-gray-600 dark:text-gray-400">Output (W)</th>
+                                                <th className="text-left py-2 pr-3 font-medium text-gray-600 dark:text-gray-400">Manufacturer</th>
+                                                <th className="text-left py-2 pr-3 font-medium text-gray-600 dark:text-gray-400">Model</th>
                                                 <th className="py-2 w-12"></th>
                                             </tr>
                                         </thead>
@@ -348,6 +354,8 @@ const Heating: React.FC<EditPropertyProps> = ({ property }) => {
                                                     <td className="py-2 pr-3">{rad.height_mm ?? '—'}</td>
                                                     <td className="py-2 pr-3">{rad.width_mm ?? '—'}</td>
                                                     <td className="py-2 pr-3">{rad.output_watts ?? '—'}</td>
+                                                    <td className="py-2 pr-3">{rad.manufacturer ?? '—'}</td>
+                                                    <td className="py-2 pr-3">{rad.model ?? '—'}</td>
                                                     <td className="py-2">
                                                         <div className="flex justify-end gap-1">
                                                             <Tooltip title="Edit">
@@ -388,6 +396,8 @@ const Heating: React.FC<EditPropertyProps> = ({ property }) => {
                     height_mm: editingRadiator.height_mm?.toString() ?? '',
                     width_mm: editingRadiator.width_mm?.toString() ?? '',
                     output_watts: editingRadiator.output_watts?.toString() ?? '',
+                    manufacturer: editingRadiator.manufacturer ?? '',
+                    model: editingRadiator.model ?? '',
                 } : emptyRadiatorForm}
                 validationSchema={radiatorValidation}
                 onSubmit={onRadiatorSubmit}
@@ -468,6 +478,28 @@ const Heating: React.FC<EditPropertyProps> = ({ property }) => {
                                     <Field name="output_watts">
                                         {({ field }: FieldProps) => (
                                             <Input size="sm" placeholder="e.g. 1500" {...field} />
+                                        )}
+                                    </Field>
+                                </FormItem>
+                                <FormItem
+                                    label="Manufacturer"
+                                    invalid={!!errors.manufacturer && touched.manufacturer}
+                                    errorMessage={errors.manufacturer}
+                                >
+                                    <Field name="manufacturer">
+                                        {({ field }: FieldProps) => (
+                                            <Input size="sm" placeholder="e.g. Stelrad" {...field} />
+                                        )}
+                                    </Field>
+                                </FormItem>
+                                <FormItem
+                                    label="Model"
+                                    invalid={!!errors.model && touched.model}
+                                    errorMessage={errors.model}
+                                >
+                                    <Field name="model">
+                                        {({ field }: FieldProps) => (
+                                            <Input size="sm" placeholder="e.g. Compact K2" {...field} />
                                         )}
                                     </Field>
                                 </FormItem>
