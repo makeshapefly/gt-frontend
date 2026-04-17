@@ -3,6 +3,10 @@
     {
       "source": "/simplypostcode/:path*",
       "destination": "https://api.simplylookupadmin.co.uk/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
