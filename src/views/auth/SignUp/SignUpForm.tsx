@@ -8,6 +8,7 @@ import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import useAuth from '@/utils/hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 import type { CommonProps } from '@/@types/common'
 
 interface SignUpFormProps extends CommonProps {
@@ -37,6 +38,7 @@ const SignUpForm = (props: SignUpFormProps) => {
     const { disableSubmit = false, className, signInUrl = '/sign-in' } = props
 
     const { signUp } = useAuth()
+    const navigate = useNavigate()
 
     const [message, setMessage] = useTimeOutMessage()
 
@@ -50,6 +52,12 @@ const SignUpForm = (props: SignUpFormProps) => {
 
         if (result?.status === 'failed') {
             setMessage(result.message)
+        }
+
+        if (result?.status === 'verify') {
+            navigate(signInUrl, {
+                state: { message: 'You will need to verify your email address before you can log in' },
+            })
         }
 
         setSubmitting(false)

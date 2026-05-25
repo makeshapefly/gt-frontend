@@ -83,7 +83,10 @@ function useAuth() {
             //const resp = await apiSignUp(values)
             const { data, error } = await supabase.auth.signUp({
                 'email': values.email,
-                'password': values.password
+                'password': values.password,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/sign-in`,
+                },
             })
             if (error) {
                 return {
@@ -92,6 +95,9 @@ function useAuth() {
                 }
             }
             if (data) {
+                if (!data.session) {
+                    return { status: 'verify', message: '' }
+                }
                 const token = data.session?.access_token
                 if (token) {
                     dispatch(signInSuccess(token))

@@ -7,6 +7,7 @@ import PasswordInput from '@/components/shared/PasswordInput'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import useAuth from '@/utils/hooks/useAuth'
+import { useLocation } from 'react-router-dom'
 import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import type { CommonProps } from '@/@types/common'
@@ -38,6 +39,8 @@ const SignInForm = (props: SignInFormProps) => {
     } = props
 
     const [message, setMessage] = useTimeOutMessage()
+    const location = useLocation()
+    const infoMessage = (location.state as { message?: string } | null)?.message
 
     const { signIn } = useAuth()
 
@@ -59,6 +62,11 @@ const SignInForm = (props: SignInFormProps) => {
 
     return (
         <div className={className}>
+            {infoMessage && (
+                <Alert showIcon className="mb-4" type="info">
+                    {infoMessage}
+                </Alert>
+            )}
             {message && (
                 <Alert showIcon className="mb-4" type="danger">
                     <>{message}</>
