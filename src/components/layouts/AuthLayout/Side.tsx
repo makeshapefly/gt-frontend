@@ -32,10 +32,10 @@ const Side = ({ children, content, ...rest }: SideProps) => {
                             <span className="opacity-80">CTO, Onward</span>
                         </div>
                     </div> */}
-                    <p className="text-xl text-white opacity-80">
+                    <p className="text-2xl text-white opacity-80">
                         Your property data - one platform, insight and action plans.
                     </p>
-                    <ul className="mt-4 space-y-2 text-white opacity-80 list-disc list-inside text-base">
+                    <ul className="mt-4 space-y-2 text-white opacity-80 list-disc list-inside text-lg">
                         <li>A data driven solution for home management, maintenance and upgrades.</li>
                         <li>Control the data and share with industry partners.</li>
                         <li>Improve energy performance, lower bills and increase property value.</li>

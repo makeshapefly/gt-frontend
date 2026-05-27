@@ -23,7 +23,6 @@ type SignUpFormSchema = {
 }
 
 const validationSchema = Yup.object().shape({
-    userName: Yup.string().required('Please enter your user name'),
     email: Yup.string()
         .email('Invalid email')
         .required('Please enter your email'),
